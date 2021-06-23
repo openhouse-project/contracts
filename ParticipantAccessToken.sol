@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
 
-Oimport "@openzeppelin/contracts@4.1.0/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts@4.1.0/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts@4.1.0/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts@4.1.0/security/Pausable.sol";
 import "@openzeppelin/contracts@4.1.0/access/AccessControl.sol";
