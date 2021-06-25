@@ -8,14 +8,21 @@ import "@openzeppelin/contracts@4.1.0/token/ERC721/extensions/ERC721Burnable.sol
 import "@openzeppelin/contracts@4.1.0/access/AccessControl.sol";
 import "@openzeppelin/contracts@4.1.0/utils/Counters.sol";
 
-contract ParticipantAccessToken is ERC721, ERC721Enumerable, ERC721Burnable, AccessControl {
+contract ParticipantAccessToken is
+    ERC721,
+    ERC721Enumerable,
+    ERC721Burnable,
+    AccessControl
+{
     using Counters for Counters.Counter;
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
     Counters.Counter private _tokenIdCounter;
 
-    constructor() ERC721("Participant Access Token", "PAT") {
+    constructor(address burner) ERC721("Participant Access Token", "PAT") {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(MINTER_ROLE, msg.sender);
         _setupRole(MINTER_ROLE, msg.sender);
     }
 
@@ -25,10 +32,16 @@ contract ParticipantAccessToken is ERC721, ERC721Enumerable, ERC721Burnable, Acc
         _tokenIdCounter.increment();
     }
 
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId)
-        internal
-        override(ERC721, ERC721Enumerable)
-    {
+    function burn(uint256 _tokenId) public {
+        require(hasRole(BURNER_ROLE, msg.sender), "Caller is not a burner");
+        _burn(_tokenId);
+    }
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal override(ERC721, ERC721Enumerable) {
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
