@@ -23,7 +23,7 @@ contract ParticipantAccessToken is
     constructor(address burner) ERC721("Participant Access Token", "PAT") {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(MINTER_ROLE, msg.sender);
-        _setupRole(MINTER_ROLE, msg.sender);
+        _setupRole(BURNER_ROLE, burner);
     }
 
     function safeMint(address to) public {
@@ -32,9 +32,9 @@ contract ParticipantAccessToken is
         _tokenIdCounter.increment();
     }
 
-    function burn(uint256 _tokenId) public {
+    function burn(uint256 tokenId) public override {
         require(hasRole(BURNER_ROLE, msg.sender), "Caller is not a burner");
-        _burn(_tokenId);
+        _burn(tokenId);
     }
 
     function _beforeTokenTransfer(
