@@ -83,4 +83,36 @@ contract OpenHouse {
     function members(string calldata name) public view returns (address[] memory) {
         return _memberships[name];
     }
+
+    /**
+    * @dev Remove a user from a room.
+    * @param user to be removed
+    * @param room from which to remove the user
+    */
+     function removeUserFromRoom(address user, string memory room) public {
+        if (_membershipsMap[room][user]) {
+            // Remove user from the memberships list
+            uint length = _memberships[room].length;
+            for (uint i=0; i < length; i++) {
+                if (_memberships[room][i] == user) {
+                    _memberships[room][i] = _memberships[room][length - 1];
+                    _memberships[room].pop();
+                    break;
+                }
+            }
+            
+            // Remove room from the user's list of rooms
+            length = _reverseMemberships[user].length;
+            for (uint i = 0; i < length; i++) {
+                if (keccak256(abi.encodePacked(_reverseMemberships[user][i])) == keccak256(abi.encodePacked(room))) {
+                    _reverseMemberships[user][i] = _reverseMemberships[user][length - 1];
+                    _reverseMemberships[user].pop();
+                    break;
+                }
+            }
+            
+            // Remove user->room combination from _membershipsMap
+            _membershipsMap[room][user] = false;
+        }
+    }
 }
