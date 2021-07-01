@@ -19,6 +19,8 @@ contract OpenHouse {
     
     mapping (string => mapping (address => bool)) private _membershipsMap;
 
+    mapping (string => mapping ( address => address[])) private _kickRequestsMap;
+
     /**
      * @dev Create a room, or join it if it already exists.
      * @param name defines the room
@@ -84,12 +86,31 @@ contract OpenHouse {
         return _memberships[name];
     }
 
+        /**
+     * @dev Register the sender's request to kick a user from a room, removing
+     * the user if enough members have requested the user's removal.
+     * @param user to be kicked
+     * @param room from which to kick the user
+     */
+    function kickUser(address user, string memory room) public {
+        uint length = _kickRequestsMap[room][user].length;
+        for (uint i = 0; i < length; i++) {
+            if (_kickRequestsMap[room][user][i] == msg.sender) {
+                return;
+            }
+        }
+        _kickRequestsMap[room][user].push(msg.sender);
+        if (_kickRequestsMap[room][user].length > 1) {
+            removeUserFromRoom(user, room);
+        }
+    }
+
     /**
     * @dev Remove a user from a room.
     * @param user to be removed
     * @param room from which to remove the user
     */
-     function removeUserFromRoom(address user, string memory room) public {
+     function removeUserFromRoom(address user, string memory room) private {
         if (_membershipsMap[room][user]) {
             // Remove user from the memberships list
             uint length = _memberships[room].length;
