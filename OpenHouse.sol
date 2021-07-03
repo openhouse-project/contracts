@@ -20,8 +20,41 @@ contract OpenHouse {
     mapping (string => mapping (address => bool)) private _membershipsMap;
 
     mapping (string => mapping ( address => address[])) private _kickRequestsMap;
-
-    /**
+    
+    mapping (string => address) private _roomContractMap;
+    
+    mapping (string => address[]) private _membershipRequests;
+    
+    function requestToJoinRoom(string calldata room) public {
+        _membershipRequests[room].push(msg.sender);
+    }
+    
+    function removeMembershipRequest(string calldata room, address user) public {
+        // Remove user from the membership requests list
+        uint length = _membershipRequests[room].length;
+        for (uint i=0; i < length; i++) {
+            if (_membershipRequests[room][i] == user) {
+                _membershipRequests[room][i] = _membershipRequests[room][length - 1];
+                _membershipRequests[room].pop();
+                break;
+            }
+        }
+    }
+    
+    function getMembershipRequests(string calldata room) public view returns (address[] memory) {
+        return _membershipRequests[room];
+    }
+    
+    function createRoomWithContract(string calldata name, address contractAddress, bool isPublic) public {
+        _roomContractMap[name] = contractAddress;
+        addRoom(name, isPublic);
+    }
+    
+    function getAddressForRoom(string calldata name) public view returns (address) {
+        return _roomContractMap[name];
+    }
+    
+   /**
      * @dev Create a room, or join it if it already exists.
      * @param name defines the room
      */
